@@ -1,0 +1,46 @@
+services:
+
+#	PHP
+  php:
+    container_name: myPHP
+    build: php
+    ports:
+      - 8741:8741
+    volumes:
+      - ./php/vhosts:/etc/apache2/sites-enabled
+      - ./:/var/www/
+    extra_hosts:
+      - host.docker.internal:host-gateway
+
+#	MARIADB
+  db:
+    container_name: myMariaDbDocker
+    image: mariadb
+    restart: always
+    environment:
+      MARIADB_ROOT_PASSWORD: example
+      MARIADB_DATABASE: mydb 
+      MARIADB_USER: anonymous
+      MARIADB_PASSWORD: example
+    volumes:
+    - ./var/lib/mariadb:/var/lib/mariadb
+
+#	ADMINER
+  adminer:
+    depends_on: 
+    - db
+    container_name: myAdminerDocker
+    image: adminer
+    restart: always
+    ports:
+      - 9001:8080
+
+#	MAILER
+  maildev:
+    container_name: myMaildevDocker
+    image: maildev/maildev
+    command: bin/maildev --web 8080 --smtp 25 --hide-extensions STARTTLS
+    ports:
+      - "8080:8080"
+    restart: always
+
